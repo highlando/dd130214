@@ -55,8 +55,10 @@
 \frametitle{Finite-dimensional NSEs}
 Differential-algebraic equation (DAE) for $v\in \mathcal C^1(0,T;\mathbb R^{n_v})$ and $p\in \mathcal C(0,T;\mathbb R^{n_v})$ 
 \begin{equation*}
-	\bbmat M & 0 \\ 0 & 0 \ebmat\bbmat \dot v \\ \dot p \ebmat-\bbmat A(v) & J_1^T \\ J_2 & 0 \ebmat\bbmat v \\ p \ebmat=\bbmat f \\ g \ebmat \text{in}  \mathcal C^1(0,T;\mathbb R^{n_v}) \times \mathcal C(0,T;\mathbb R^{n_v})
+	\bbmat M & 0 \\ 0 & 0 \ebmat\bbmat \dot v \\ \dot p \ebmat-\bbmat A(v) & J_1^T \\ J_2 & 0 \ebmat\bbmat v \\ p \ebmat=\bbmat f \\ g \ebmat
 \end{equation*}
+ in  $\mathcal C^1(0,T;\mathbb R^{n_v}) \times \mathcal C(0,T;\mathbb R^{n_v}).$
+\vfill
 Crucial:
 \begin{itemize}
 	\item $M$, $J_2M^{-1}J_1^T$ invertible ($\Rightarrow n_p \leq n_v$)
@@ -118,6 +120,8 @@ Note that $\mathcal  P = I - M^{-1}J_1^TS^{-1}J_2$ projects onto the kernel of $
 This decoupling works, since $\mathcal P$ and $\mathcal Q$ split the solution space as well as the ``equation space''.
 }
 
+\section{Abstract DAEs}
+\subsection{General Considerations}
 \frame{
 \frametitle{The Main Result}
 A similar result for abstract DAEs, where $v$ and $p$ take on values in Banach-spaces, that will
@@ -128,7 +132,6 @@ A similar result for abstract DAEs, where $v$ and $p$ take on values in Banach-s
 	\item and that is consistent with finite-dimensional solution approaches.
 \end{itemize}
 }
-\section{Abstract DAEs}
 
 \frame{
 \frametitle{Functional Analysis Setting}
@@ -210,7 +213,7 @@ We proceed as follows:
 \end{recap}
 
 \begin{block}{Assumption [S]}
-	For more regular data $f(t)\in H'$ (rather than in $V'$) any corresponding solution $(v,p)$ of the abstract DAE invokes $A(v)\in H'$.
+	For more regular data $f(t)\in H'$ (rather than in $V'$) any corresponding solution $(v,p)$ of the abstract DAE invokes $A(v(t))\in H'$.
 \end{block}
 
 \vfill
@@ -261,7 +264,7 @@ $ \PHpdf \dot v  - \PHpdf A(v)-Lv  = \PHpdf f + J_1'S^{-1}g \text{ in }H'$
 Using $H'=\Hdf'\oplus \Hg'$ and $v= \PHdf v+jLv $ we find
 that
 \begin{equation*}
-	jLv = [I-\PHdf]v = -jJ_1S^{-1}g \text{ in }H_g
+	Lv = [I-\PHdf]v = -J_1S^{-1}g \text{ in }H_g'
 \end{equation*}
 while $\PHdf v$ must solve 
 \begin{equation*}
@@ -275,17 +278,52 @@ while $\PHdf v$ must solve
 	Under Assumptions [WP] and [S], for $f$ and $g$ sufficiently smooth,
 	any $v$ with values in $V$ solving the ADAE
 	\begin{align*}
-		\dot v(t) -A(v(t))-J_1'p(t)&=f(t) \quad\text{ in }V'\text{, a.e. in }(0,T), \\
-		-J_2v(t)\phantom{-J_1'p(t)}&=g(t) \quad\text{ in }Q'\text{, a.e. in }(0,T).
+		\dot v(t) -A(v(t))-J_1'p(t)&=f(t) \quad\text{ in }V', \\
+		-J_2v(t)\phantom{-J_1'p(t)}&=g(t) \quad\text{ in }Q',
 	\end{align*}
-	can be written as $v=\PHdf v + jLv$, where the parts solve 
+	 a.e. in $(0,T)$, can be written as $v=\PHdf v + jLv$, where the parts solve 
 \begin{align*}
-	jLv &= -jJ_1S^{-1}g \text{ in }H_g\\
-	\dot \PHdf v  - \PHpdf A(\PHdf v -jJ_1S^{-1}g)  &= \PHpdf f  \text{ in }\Hdf'.
+	Lv(t) = -J_1S^{-1}g(t) &\text{ in }H_g'\\
+	\dot \PHdf v(t)  - \PHpdf A\bigl(\PHdf v(t) -jJ_1S^{-1}g(t)\bigr)  = \PHpdf f(t) & \text{ in }\Hdf'.
 \end{align*}
 
 \end{theorem}
 }
+
+\subsection{Navier-Stokes Case}
+\frame{
+\frametitle{NSE vs. the Assumptions }
+\begin{recap}
+	$\dot v(t) -A(v(t))-J_1'p(t)=f(t) \quad\text{ in }V'$ \\
+	$-J_2v(t)\phantom{-J_1'p(t)}=g(t) \quad\text{ in }Q'$
+\end{recap}
+\begin{block}{Assumption [WP]}
+	\begin{itemize}
+		\item[(a)] $J_1',J_2'\in \mathcal L(Q,H')$ are homeomorphisms onto their range and 
+		\item[(b)] $j(\image J_1') \cap \ker J_2=\{0\}$,
+	\end{itemize}
+	where $j\colon H'\to H$ is the Riesz isomorphism.
+\end{block}
+
+\begin{block}{Assumption [S]}
+	For more regular data $f(t)\in H'$ (rather than in $V'$) any corresponding solution $(v,p)$ of the abstract DAE invokes $A(v(t))\in H'$.
+\end{block}
+
+}
+
+
+
+\frame{
+\frametitle{What Else?}
+Further issues:
+\begin{itemize}
+	\item Regularity of $\bigl( t \mapsto v(t),p(t) \bigr)$
+	\item Initial conditions and consistency
+	\item Spatial discretizations
+	\item Optimal control problems
+\end{itemize}
+}
+
 \frame{
 \begin{center}
 Thanks to Volker Mehrmann and \\
@@ -296,33 +334,5 @@ For suggestions and questions please contact me\\
 \vspace{0.1in}
 \texttt{heiland@math.tu-berlin.de}
 \end{center}
-}
-
-\frame{
-\frametitle{References}
-\begin{itemize}
-	\item \textsc{J.~Heiland} and \textsc{ V.~Mehrmann}, \\ \textit{ Distributed control of linearized Navier-Stokes equations via discretized input/output maps.} \\
-		ZAMM - Journal of Applied Mathematics and Mechanics 92(4), 2012 
-	\item \textsc{J.~Heiland},  \textsc{V.~Mehrmann},  and  \textsc{M.~Schmidt}, \\ \textit{ A new discretization framework for input/output maps and its application to flow control.} \\
- in: Active Flow Control II, Springer, 2010.
-	\item \textsc{D.\,J. Silvester},  \textsc{H.\,C. Elman},  and  \textsc{A.~Ramage}, \\
-		\textit{ {IFISS} software package }\\
-		\texttt{http://www.manchester.ac.uk/ifiss/} \\
-University of Manchester, UK, 2006.
-\end{itemize}
-}
-\frame{ 
-\frametitle{References}
-\begin{itemize}
-	\item Kunkel, Mehrmann, several papers on optimal control for DAEs (e.g. 1997, 2008)
-		\vspace{0.1in}
-	\item Kurina, M\"arz: \textit {Feedback Solutions of Optimal Control Problems with DAE Constraints} (2007)
-		\vspace{0.1in}
-	\item Backes: \textit{Optimale Steuerung der linearen DAE im Fall Index 2} (2006)
-		\vspace{0.1in}
-	\item B\"ansch, Benner: \textit{Stabilization of Incompressible Flow by Riccati-based Feedback} (2010) 
-		\vspace{0.1in}
-	\item Heinkenschloss, S\"orensen and Sun: \textit{Balanced truncation model reduction for a class of descriptor systems with application to the Oseen equations} (2008)
-\end{itemize}
 }
 \end{document}
