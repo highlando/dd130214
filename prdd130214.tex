@@ -3,6 +3,9 @@
 %\usepackage{natbib}
 \usepackage{amssymb,amsmath,amsthm,mathtools,amscd}
 %\beamersetuncovermixins{\opaqueness<1>{25}}{\opaqueness<2->{15}}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{matrix}
 
 \useinnertheme{rounded}
 \usecolortheme{beetle}
@@ -24,15 +27,21 @@
 \begin{document}
 %%% Spaces
 \def\Hdf{H_{{df}}}
-\def\sdf{_{df}}
+\def\sdf{_{\text{df}}}
+\def\sg{_{\text{c}}}
 \def\Hg{H_{{g}}}
 \def\sg{_{g}}
+\def\nv{n_v}
+\def\np{n_p}
+
 
 %%% Projectors
+% \def\Prj{P_{[V\sdf|V\sg]}}
+\def\Prj{P\sdf}
 \def\PHdf{\mathcal P_{\Hdf}}
 \def\PHpdf{\mathcal P_{\Hdf'}}
 
-\title[Decoupling of semi-explicit index-2 DAEs]{ Decoupling of Semi-Explicit Index-2 (A)DAEs  \\ via Projector Chains}
+\title[Decoupling of semi-explicit index-2 DAEs]{ Decoupling of Differential-Algebraic Equations \\ with Application in Flow Control}
 
 
 \author{Jan Heiland}
@@ -48,269 +57,206 @@
 \tableofcontents
 } 
 
-\section{Finite Dim DAEs}
-\subsection{No Introduction}
+\section{Decoupling of the DAEs}
+\subsection{Motivating Example}
 
 \frame{
-\frametitle{Finite-dimensional NSEs}
-Differential-algebraic equation (DAE) for $v\in \mathcal C^1(0,T;\mathbb R^{n_v})$ and $p\in \mathcal C(0,T;\mathbb R^{n_v})$ 
-\begin{equation*}
-	\bbmat M & 0 \\ 0 & 0 \ebmat\bbmat \dot v \\ \dot p \ebmat-\bbmat A(v) & J_1^T \\ J_2 & 0 \ebmat\bbmat v \\ p \ebmat=\bbmat f \\ g \ebmat
-\end{equation*}
- in  $\mathcal C^1(0,T;\mathbb R^{n_v}) \times \mathcal C(0,T;\mathbb R^{n_v}).$
-\vfill
-Crucial:
-\begin{itemize}
-	\item $M$, $J_2M^{-1}J_1^T$ invertible ($\Rightarrow n_p \leq n_v$)
-\end{itemize}
-For simplification:
-\begin{itemize}
-	\item $M$, $J_1$, $J_2$ are time-invariant
-\end{itemize}
-}
-
-\frame{
-\frametitle{Projector Chain}
-\begin{itemize}
-	\item Start from the DAE $(E_0,A_0)$, ie. $E_0\dot x - A_0x = f$
-\end{itemize}
-Given $(E_k,A_k)$\dots
-\begin{enumerate}
-	\item \texttt{If} $E_k$ is invertible, \texttt{Return}
-	\item \texttt{Elseif}:
-		\begin{itemize}
-			\item Compute projector $Q _k$, with $\image Q_k = \ker E_k$
-			\item Define $P_k:= I - Q_k$
-			\item Set $(E_{k+1}, A_{k+1}):= (E_k+A_kQ_k,A_kP_k)$
-			\item Dump $k$ and start over
-		\end{itemize}
-\end{enumerate}
-The exiting $k$ defines the tractability index of the DAE
-}
-\subsection{Semidiscrete Navier-Stokes}
-\frame{
-\frametitle{A Concrete Example}
-\begin{recap}
-	$\bbmat M & 0 \\ 0 & 0 \ebmat\bbmat \dot v \\ \dot p \ebmat-\bbmat A(v) & J_1^T \\ J_2 & 0 \ebmat\bbmat v \\ p \ebmat=\bbmat f \\ g \ebmat$ \\
-	as $\mathcal E_0\dot x - \mathcal A_0x = [fg] $
-\end{recap}
-For the NSE system we find that $\mathcal E_2$ is invertible with
-\begin{equation*}
-	\mathcal E_2^{-1} = \begin{bmatrix} \mathcal P & [I-\mathcal PM^{-1}A]M^{-1}J_1^TS^{-1} \\ {\mathcal Q}^- & -[I+{\mathcal Q}^-M^{-1}AM^{-1}J_1^T]S^{-1} \end{bmatrix}
-\end{equation*}
-with $S=J_2M^{-1}J_1^T$, the projectors 
-\begin{itemize}
-	\item[] ${\mathcal Q}=M^{-1}J_1^TS^{-1}J_2$ and 
-	\item[] $\mathcal P = I - \mathcal Q$,
-\end{itemize} 
-and for any $A=A(v)$.
-}
-
-\frame{
-\frametitle{and Application}
-We scale the NSE system by $\mathcal E_2^{-1}$, write $v=\mathcal Pv + \mathcal Qv$, and end up with the decoupling
+\frametitle{Semi-discrete Navier-Stokes Equation}
+For $M$, $N$ in $\mathbb R^{\nv, \nv}$, $J \in \mathbb R^{\np}$, with $n_v$, $n_p\in \mathbb N$, and for $v\in \mathcal C^1(0,T;\mathbb R^{n_v})$ and $p\in \mathcal C(0,T;\mathbb R^{n_v})$ consider
 \begin{align*}
-	\mathcal Q v &= - M^{-1}J_1^TS^{-1}g \\
-	\frac{d}{dt}(\mathcal P v) - \mathcal PM^{-1}A(\mathcal Pv+\mathcal Qv)[\mathcal Pv+\mathcal Qv] &= \mathcal PM^{-1}f, \\
-	p &= \mathcal F(\mathcal Pv,\mathcal Q_v,\dot g).
+M \dot v - Av - J^Tp &= f, \\
+Jv &= 0 \quad \text{in } (0,T) \times \mathbb R^{n_v}.
 \end{align*}
-Note that $\mathcal  P = I - M^{-1}J_1^TS^{-1}J_2$ projects onto the kernel of $J_2$.
-\vfill
-
-This decoupling works, since $\mathcal P$ and $\mathcal Q$ split the solution space as well as the ``equation space''.
+Assume that $M$ are $JM^{-1}J^T$ are invertible.
 }
 
-\section{Abstract DAEs}
-\subsection{General Considerations}
 \frame{
-\frametitle{The Main Result}
-A similar result for abstract DAEs, where $v$ and $p$ take on values in Banach-spaces, that will
+\frametitle{Preparing for the decoupling}
+\begin{recap}
+$M \dot v - Av - J^Tp = f,$ \\
+$Jv = 0$ \\ 
+% $M$, $JM^{-1}J^T$ invertible
+\end{recap}
+We observe:
 \begin{itemize}
-	\item Decouple algebraic an differential equations,
-	\item Characterise the solution sets, 
-	\item Reveal consistency and smoothness conditions (not today),
-	\item and that is consistent with finite-dimensional solution approaches.
+	\item If $Jv=0$ for all time, then $J\dot v = 0$ for all time,
+	\item and $\mathbb R^{\nv}=\ker J \oplus \image M^{-1}J^T. $
 \end{itemize}
+and we define:
+\begin{itemize}
+	\item the spaces $V\sdf := \ker J$ and $V\sg := \image M^{-1}J^T $
+	\item and the projector $\Prj\colon \mathbb R^{\nv}\to \mathbb R^{\nv}$, 
+	\item with $\image \Prj =V\sdf $ and $\ker \Prj = V\sg$.
+\end{itemize}
+
 }
 
 \frame{
-\frametitle{Functional Analysis Setting}
+\frametitle{Decoupling}
+\begin{recap}
+$M \dot v - Av - J^Tp = f,$ \\
+$Jv = 0$ \\ 
+$J\dot v = 0$\\
+$\mathbb R^{\nv}=\ker J \oplus \image M^{-1}J^T = V\sdf \oplus V\sg$
+\end{recap}
+
+Considering the parts of $$\dot v(t) - M^{-1}Av(t) - M^{-1}J^Tp(t) = M^{-1}f(t)\in \mathbb R^{\nv}$$ in $V\sdf$ and $V\sg$, we obtain two equations:
+\begin{equation*}
+	\dot v - \Prj M^{-1}Av = \Prj M^{-1}f
+\end{equation*} 
+as the part in $V\sdf$ and, having applied $J$ to the remainder part,
+\begin{equation*}
+	-JM^{-1}Av-JM{-1}J^T p = JM^{-1}f,
+\end{equation*}
+which is also known as the Pressure Poisson Equation.
+
+}
+\subsection{Infinite-dimensional Issues}
+\frame{
+\frametitle{The Abstract Setup}
 \begin{itemize}
-	\item Banach space $V \subset H$ Hilbert space (dense and continuously embedded)
+	\item Banach space $V \hookrightarrow H$ Hilbert space (dense and continuously embedded)
 	\item Riesz isomorphism $j'\colon H \to H'$ identifies $H$ with its dual $H'$
-	\item Then, $V\subset H \cong H' \subset V'$
+	\item Then, $V\hookrightarrow H \cong H' \hookrightarrow V'$
 \end{itemize}
 \vfill
- We look for $v\in \bigl( (0,T) \to V \bigr)$ with $\dot v(t) \in V'$ and for $p \in \bigl( (0,T) \to Q \bigr)$ that satisfy
+ We look for $v\in \bigl( (0,T) \to V \bigr)$ with $\dot v(t) \in V'$ and for $p \in \bigl( (0,T) \to Q_H \bigr)$ that satisfy
 	\begin{align*}
-		\dot v(t) -A(v(t))-J_1'p(t)&=f(t) \quad\text{ in }V'\text{, a.e. in }(0,T), \\
-		-J_2v(t)\phantom{-J_1'p(t)}&=g(t) \quad\text{ in }Q'\text{, a.e. in }(0,T).
+		\dot v -Av-J'p&=f \quad\text{ in }(0,T) \times V', \\
+		Jv&=0 \quad\text{ in }(0,T) \times Q_H'
 	\end{align*}
-with $V\subset H \subset V'$ as defined above, and with a Hilbert space $Q$.
+with $V\hookrightarrow H \hookrightarrow V'$ as defined above, and with a Hilbert space $Q_H$.
 }
 \frame{
-\frametitle{Abstract ADAE}
+\frametitle{The Abstract NSE}
 	\begin{recap}
-		$v(t)\in V$, $\dot v(t) \in V'$, $p(t)\in Q$, \\
-		$\dot v(t) -A(v(t))-J_1'p(t)=f(t) \quad\text{ in }V'$ \\
-		$-J_2v(t)\phantom{-J_1'p(t)}=g(t) \quad\text{ in }Q'$
+		$v(t)\in V$, $\dot v(t) \in V'$, $p(t)\in Q_H$, \\
+		$\dot v -Av-J'p=f$, \\
+		$Jv=0$
 	\end{recap}
-With operators 
+	For the Navier-Stokes equations on a domain $\Omega \subset \mathbb R^{d}$, $d=\{2,3\}$, the spaces are given as 
 \begin{itemize}
-	\item $A\colon V\to V'$
-	\item $J_1':Q \to V'$
-	\item $J_2 :V \to Q'$
+	\item $V:=[W^{1,2}(\Omega)]^d$, $H:=[L^2(\Omega)]^d$, and $Q_H:= L^2(\Omega)/\mathbb R^{}$ 
 \end{itemize}
-\vfill
-Major obstacle for decoupling: \\
-The equations are posed in a Banach space $V' \supsetneq V$
+and the operators as 
 \begin{itemize}
-	\item[$\to$] A projection does not necessarily split the space  
-	\item[$\to$] Solution space is different from ``equation space''
-\end{itemize}
-\vfill
-}
-
-\frame{
-\frametitle{Strategy}
-We proceed as follows:
-\begin{itemize}
-	\item Given a smooth $f$ and smoothing operators,
-	\item the equation is posed in $H'$ -- rather than in $V'$ --
-	\item which is a Hilbert space.
-	\item There we can define projectors and decouple the equations.
-	\item $v\in V \subset H$ can be decoupled with the dual projections.
+	\item $A:= \triangle \colon V\to V':=[W^{-1,2}]^d$
+	\item $J:= \dive \colon V\to Q_H':=(L^2/\mathbb R^{})'  $
+	\item $J':= \nabla \colon Q_H'\to V'$
 \end{itemize}
 }
 
 \frame{
-\frametitle{(Well posedness) Assumption}
 \begin{recap}
-	$\dot v(t) -A(v(t))-J_1'p(t)=f(t) \quad\text{ in }V'$ \\
-	$-J_2v(t)\phantom{-J_1'p(t)}=g(t) \quad\text{ in }Q'$
+$J\dot v = 0$\\
+$\mathbb R^{\nv}=\ker J \oplus \image M^{-1}J^T$ 
 \end{recap}
-\begin{block}{Assumption [WP]}
-	\begin{itemize}
-		\item[(a)] $J_1',J_2'\in \mathcal L(Q,H')$ are homeomorphisms onto their range and 
-		\item[(b)] $j(\image J_1') \cap \ker J_2=\{0\}$,
-	\end{itemize}
-	where $j\colon H'\to H$ is the Riesz isomorphism.
+\frametitle{Decoupling - what goes wrong}
+We want to decouple 
+$$\dot v - \mathcal Av - \mathcal J'p = f$$
+on $(0,T) \times V'$, with $v(t) \in V$ in the same way as the finite dimensional equations. However the basic assumptions fail, because of one major reason: $$V \subsetneq V'.$$
+This means, in particular, that
+\begin{itemize}
+	\item $\mathcal J\dot v = ?\quad $ (not defined yet)
+	\item $V = \ker \mathcal J \oplus ? \quad $($\image \mathcal J' \in V'$)
+\end{itemize}
+\vfill
+}
+\section{Decoupling of the ADAEs}
+\frame{
+\frametitle{ Two problems, one solution: Regularity }
+\begin{recap}
+	$\mathcal J\dot v = ?$ \\
+$V = \ker \mathcal J \oplus ?$
+\end{recap}
+We had $Q_H \cong Q_H'$ and  $V\hookrightarrow H \cong H' \hookrightarrow V'$, \\ with operators $\mathcal J$ and $\mathcal J'$ as 
+\begin{figure}[htb]
+	\begin{tikzpicture}
+		\matrix (m) [matrix of math nodes, row sep=2em,
+		column sep=0.01em]{
+		V\pgfmatrixnextcell  \hookrightarrow \pgfmatrixnextcell  H \pgfmatrixnextcell  \cong\pgfmatrixnextcell  H'\pgfmatrixnextcell  \hookrightarrow \pgfmatrixnextcell V' \\
+		~ \pgfmatrixnextcell  \quad ~ \quad \pgfmatrixnextcell  Q_H \pgfmatrixnextcell  \cong\pgfmatrixnextcell  Q_H '\pgfmatrixnextcell  \quad ~ \pgfmatrixnextcell ~  \\
+		};
+		\path[-stealth]
+		%(m-1-1) edge [densely dotted] (m-2-5) 
+		(m-1-1) edge  node [left, anchor=north, pos=0.1] {$ \mathcal J $} (m-2-5) 
+		(m-2-3) edge  node [right, anchor=north, pos=0.9] {$\mathcal J'$} (m-1-7);
+	\end{tikzpicture}
+	\label{fig:shiftJ1J2}
+\end{figure}
+we introduce a Banach space $Q\hookrightarrow Q_H$, such that $\mathcal J'(Q) \subset H'$
+}
+
+\frame{
+\frametitle{ Two problems, one solution: Regularity }
+\begin{recap}
+	$\mathcal J\dot v = ?$ \\
+$V = \ker \mathcal J \oplus ?$
+\end{recap}
+We had $Q_H \cong Q_H'$ and  $V\subset H \cong H' \subset V'$, \\ with operators $\mathcal J$ and $\mathcal J'$ as 
+\begin{figure}[htb]
+	\begin{tikzpicture}
+		\matrix (m) [matrix of math nodes, row sep=2em,
+		column sep=0.01em]{
+		V\pgfmatrixnextcell  \hookrightarrow \pgfmatrixnextcell  H \pgfmatrixnextcell  \cong\pgfmatrixnextcell  H'\pgfmatrixnextcell  \hookrightarrow \pgfmatrixnextcell V' \\
+		Q \pgfmatrixnextcell  \quad \hookrightarrow \quad \pgfmatrixnextcell  Q_H \pgfmatrixnextcell  \cong\pgfmatrixnextcell  Q_H '\pgfmatrixnextcell  \quad \hookrightarrow \pgfmatrixnextcell Q'  \\
+		};
+		\path[-stealth]
+		%(m-1-1) edge [densely dotted] (m-2-5) 
+		(m-1-1) edge  node [left, anchor=north, pos=0.1] {$ \mathcal J $} (m-2-5) 
+		(m-2-3) edge  node [right, anchor=north, pos=0.9] {$\mathcal J'$} (m-1-7);
+	\end{tikzpicture}
+	\label{fig:shiftJ1J2}
+\end{figure}
+we introduce a Banach space $Q\hookrightarrow Q_H$, such that $\mathcal J'(Q) \subset H'$
+}
+
+\frame{
+\frametitle{Smoothness Assumptions}
+\begin{recap}
+	$\mathcal J'\colon Q_H \to V'$ \\
+	$Q\hookrightarrow Q_H, \quad H'\hookrightarrow V'$
+\end{recap}
+
+\begin{block}{Assumption [S1]}
+	We assume that the shift of $\mathcal J' \colon Q_H \to V'$ ``to the left``:
+$$
+\bar {\mathcal J'}\colon Q \to H'
+$$
+is bounded. 
 \end{block}
 
-\begin{lemma}
-	If $J_1=J_2=:J$, then Assumption [WP] is equivalent to the commonly used condition
-		\begin{equation*}
-			\exists \gamma >0: \inf_{0\neq v\in H} \sup_{0\neq q \in Q} \frac{\langle J'q,v \rangle _{H',H}}{\norm{q}_Q\norm{v}_H}\geq \gamma > 0,
-		\end{equation*}
-\end{lemma}
-}
-
-\frame{
-\frametitle{(Smoothness) Assumption}
-\begin{recap}
-	$\dot v(t) -A(v(t))-J_1'p(t)=f(t) \quad\text{ in }V'$ \\
-	$-J_2v(t)\phantom{-J_1'p(t)}=g(t) \quad\text{ in }Q'$
-\end{recap}
-
-\begin{block}{Assumption [S]}
-	For more regular data $f(t)\in H'$ (rather than in $V'$) any corresponding solution $(v,p)$ of the abstract DAE invokes $A(v(t))\in H'$.
+\begin{block}{Assumption [S2]}
+	For more regular data $f(t) \in H'$ (rather than in $V'$) any corresponding solution $(v,p)$ is such that $\dot v(t)$ and $\bar{\mathcal J'}p(t)$ is in $H'$, rather than in $V'$. 
 \end{block}
 
-\vfill
-
-\begin{corollary}
-With $J_1'\colon Q \to H'$, Assumption [S] means that for smoother $f$ the $ADAE$ is posed in the Hilbert space $H'\times Q'$
-\end{corollary}
 }
 
-
 \frame{
-\frametitle{Split the Spaces}
-	By Assumption we have $S:=J_2jJ_1' \colon Q \to Q'$ is invertible, and we can define $L:=J_1'S^{-1}J_2\colon H \to H'$.
-\begin{lemma}
+\frametitle{Shift of the Equation to $H'$}
+For $f\in L^2(0,T; H')$ and with Assumptions [S1] and [S2] we can write the abstract equation as
+$$\dot v - \mathcal Av - \mathcal J'p = f \quad \text{in } (0,T)\times H'$$
+and show that
 \begin{itemize}
-		\item $\Hdf:= \ker J_2=\image [I_{H}-jL]$,
-		\item $\Hg:= \image jL = \image jJ_1'$,
-		\item[and] thus $H=\Hdf\oplus \Hg$,
-		\item $\Hg':= \image Lj = j'(\Hg)$,
-		\item $\Hdf':= \image [I_{H'}-Lj]=j'(\Hdf)$,
-		\item[and] thus $H'=\Hdf'\oplus \Hg'$.
+	\item $\bar {\mathcal J}\dot v(t) = 0$ in $Q'$
+	\item and $H' = j'(\ker \bar{\mathcal J}) \oplus \image \bar{\mathcal J'}$
 \end{itemize}
-\end{lemma}
-Define $\PHpdf$, $\PHdf$ -- corresponding projectors onto $\Hdf'$ and $\Hdf$.
-}
-
-\frame{
-\frametitle{Decouple the Equations}
-\begin{recap}
-	For smooth $f$ we have \\
-	$\dot v(t) -A(v(t))-J_1'p(t)=f(t) \quad\text{ in }H'$ \\
-	$-J_2v(t)\phantom{-J_1'p(t)}=g(t) \quad\text{ in }Q'$
-\end{recap}
-And, having scaled the ADAE by the injective 
- \begin{equation*}
-	 \mathcal E_2^{-1}:=\bbmat \PHpdf  & J_1'S^{-1} \\ j_Q'S^{-1}J_2j & -j_Q'S^{-1} \ebmat\colon H'\times Q' \to H'\times Q' . 
- \end{equation*}
-(from the projector chain), we get the equivalent system of equation
-$$ \PHpdf \dot v  - \PHpdf A(v)-Lv  = \PHpdf f + J_1S^{-1}g \text{ in }H'.$$
-plus an equation defining the algebraic variable $p$.
-}
-
-\frame{
-\frametitle{Split the Equations}
-\begin{recap}
-$ \PHpdf \dot v  - \PHpdf A(v)-Lv  = \PHpdf f + J_1'S^{-1}g \text{ in }H'$
-\end{recap}
-Using $H'=\Hdf'\oplus \Hg'$ and $v= \PHdf v+jLv $ we find
-that
-\begin{equation*}
-	Lv = [I-\PHdf]v = -J_1S^{-1}g \text{ in }H_g'
-\end{equation*}
-while $\PHdf v$ must solve 
-\begin{equation*}
-	\dot w  - \PHpdf A(w -jJ_1S^{-1}g)  = \PHpdf f  \text{ in }\Hdf'.
-\end{equation*}
 }
 
 \frame{
 \frametitle{Summing Up}
 \begin{theorem}
-	Under Assumptions [WP] and [S], for $f$ and $g$ sufficiently smooth,
-	any $v$ with values in $V$ solving the ADAE
-	\begin{align*}
-		\dot v(t) -A(v(t))-J_1'p(t)&=f(t) \quad\text{ in }V', \\
-		-J_2v(t)\phantom{-J_1'p(t)}&=g(t) \quad\text{ in }Q',
-	\end{align*}
-	 a.e. in $(0,T)$, can be written as $v=\PHdf v + jLv$, where the parts solve 
+	Consider Equation 
+	$$\dot v - \mathcal Av - \mathcal Jp = f \quad \text{in }(0,T) \times V'$$
+	and $V\hookrightarrow H$, $Q\hookrightarrow Q_H$ and operators $\mathcal J$, $\bar{\mathcal J}$, $\mathcal A$ as defined above.
+	For $f\in L^2(0,T; H')$ and with Assumptions [S1] and [S2], one has the decoupling
 \begin{align*}
-	Lv(t) = -J_1S^{-1}g(t) &\text{ in }H_g'\\
-	\dot \PHdf v(t)  - \PHpdf A\bigl(\PHdf v(t) -jJ_1S^{-1}g(t)\bigr)  = \PHpdf f(t) & \text{ in }\Hdf'.
+	\dot v  - \mathcal P\sdf\mathcal  Av &= \mathcal P \sdf f  \quad \text{ in } (0,T) \times j(\ker \bar{\mathcal J'}) \\
+	-\bar{\mathcal J} j \mathcal Av-\bar {\mathcal J} j \bar{\mathcal J'} p &= \bar{\mathcal J} jf\quad \text{ in } (0,T) \times Q' ,
 \end{align*}
-
+where $j\colon H' \to H$ is the Riesz-isomorphism and $\mathcal P\sdf$ is the projector the realizes $H' = j'(\ker \bar{\mathcal J}) \oplus \image \bar{\mathcal J'}$.
 \end{theorem}
 }
-
-\subsection{Navier-Stokes Case}
-\frame{
-\frametitle{NSE vs. the Assumptions }
-\begin{recap}
-	$\dot v(t) -A(v(t))-J_1'p(t)=f(t) \quad\text{ in }V'$ \\
-	$-J_2v(t)\phantom{-J_1'p(t)}=g(t) \quad\text{ in }Q'$
-\end{recap}
-\begin{block}{Assumption [WP]}
-	\begin{itemize}
-		\item[(a)] $J_1',J_2'\in \mathcal L(Q,H')$ are homeomorphisms onto their range and 
-		\item[(b)] $j(\image J_1') \cap \ker J_2=\{0\}$,
-	\end{itemize}
-	where $j\colon H'\to H$ is the Riesz isomorphism.
-\end{block}
-
-\begin{block}{Assumption [S]}
-	For more regular data $f(t)\in H'$ (rather than in $V'$) any corresponding solution $(v,p)$ of the abstract DAE invokes $A(v(t))\in H'$.
-\end{block}
-
-}
-
 
 
 \frame{
